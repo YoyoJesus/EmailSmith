@@ -1,11 +1,11 @@
 {
-	"outputDirectory": "build",
-	"headers": [
-		{
-			"source": "/(.*)",
-			"headers": [
-				{ "key": "Cross-Origin-Opener-Policy", "value": "same-origin" }
-			]
-		}
-	]
+  "outputDirectory": "build",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" }
+      ]
+    }
+  ]
 }

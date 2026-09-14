@@ -1,29 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-	--color-primary: #2563eb;
-	--color-primary-dark: #1d4ed8;
-	--color-surface: #ffffff;
-	--color-surface-alt: #f8fafc;
-	--color-border: #e2e8f0;
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-border: #e2e8f0;
 }
 
-html, body {
-	height: 100%;
-	margin: 0;
-	background-color: #f1f5f9;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background-color: #f1f5f9;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-	width: 6px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-	background: transparent;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-	background: #cbd5e1;
-	border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 
 /* Form input styles */
@@ -33,25 +34,25 @@ input[type="tel"],
 input[type="url"],
 input[type="number"],
 select {
-	width: 100%;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid var(--color-border);
-	border-radius: 0.375rem;
-	font-size: 0.875rem;
-	outline: none;
-	transition: border-color 0.15s;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
 }
 
 input:focus,
 select:focus {
-	border-color: var(--color-primary);
-	box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 label {
-	display: block;
-	font-size: 0.8rem;
-	font-weight: 500;
-	color: #475569;
-	margin-bottom: 0.25rem;
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0.25rem;
 }
