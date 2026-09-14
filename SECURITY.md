@@ -6,7 +6,7 @@ Security fixes are applied to the latest code on `main` and the current producti
 
 ## Reporting a vulnerability
 
-Please report vulnerabilities privately using [GitHub's security-advisory form](https://github.com/YoyoJesus/email-signature-maker/security/advisories/new). Do not open a public issue for a vulnerability that could expose personal information, browser-stored data, credentials, or deployment infrastructure.
+Please report vulnerabilities privately using [GitHub's security-advisory form](https://github.com/YoyoJesus/EmailSmith/security/advisories/new). Do not open a public issue for a vulnerability that could expose personal information, browser-stored data, credentials, or deployment infrastructure.
 
 Include, when possible:
 

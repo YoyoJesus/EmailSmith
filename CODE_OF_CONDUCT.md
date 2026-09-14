@@ -34,7 +34,7 @@ This Code of Conduct applies within all project spaces and when an individual is
 
 ## Reporting and enforcement
 
-Report abusive, harassing, or otherwise unacceptable behavior to the project maintainer through the contact options on the [maintainer's GitHub profile](https://github.com/YoyoJesus). Sensitive reports may be submitted privately through a [GitHub security advisory](https://github.com/YoyoJesus/email-signature-maker/security/advisories/new).
+Report abusive, harassing, or otherwise unacceptable behavior to the project maintainer through the contact options on the [maintainer's GitHub profile](https://github.com/YoyoJesus). Sensitive reports may be submitted privately through a [GitHub security advisory](https://github.com/YoyoJesus/EmailSmith/security/advisories/new).
 
 All complaints will be reviewed and investigated promptly and fairly. The project maintainer will respect the privacy and security of reporters.
 
