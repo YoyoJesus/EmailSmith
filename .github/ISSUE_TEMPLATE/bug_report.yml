@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a reproducible problem with EmailSmith
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Remove personal information from screenshots, generated signatures, browser storage, and logs.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+      placeholder: A clear, concise description of the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      options:
+        - Signature fields
+        - Profile image
+        - HTML preview or copy
+        - Typst output
+        - Browser persistence
+        - Styling or layout
+        - Deployment or configuration
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, operating system, and email client
+      placeholder: Chrome 140 on Windows 11; Gmail web
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Redact names, email addresses, phone numbers, URLs, images, credentials, and other personal data.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I searched for an existing issue before filing this report.
+          required: true
+        - label: I removed credentials and personal signature data from this report.
+          required: true
+  - type: textarea
+    id: agent_attribution
+    attributes:
+      label: AI attribution
+      description: Leave this as is if you wrote the issue yourself.
+      value: Not AI-generated
+    validations:
+      required: true
