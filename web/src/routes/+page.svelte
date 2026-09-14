@@ -133,7 +133,7 @@
 	<!-- Header -->
 	<header class="bg-white border-b border-slate-200 px-6 py-3">
 		<div class="max-w-[1600px] mx-auto flex items-center justify-between">
-			<h1 class="text-lg font-bold text-slate-800">Email Signature Maker</h1>
+			<h1 class="text-lg font-bold text-slate-800">EmailSmith</h1>
 			<div class="flex items-center gap-3">
 				<button
 					onclick={resetData}
@@ -179,24 +179,27 @@
 								<input type="text" id="pronouns" bind:value={data.pronouns} placeholder="he/him" />
 							</div>
 
-							<div>
-								<label class="!mb-1">Education / Company <span class="text-slate-400">(optional)</span></label>
+							<fieldset>
+								<legend class="!mb-1">Education / Company <span class="text-slate-400">(optional)</span></legend>
 								<div class="flex gap-2">
 									<div class="flex-1">
-										<input type="text" bind:value={data.subtitleText} placeholder="Computer Science Student" />
+										<label for="subtitleText" class="sr-only">Education or role</label>
+										<input id="subtitleText" type="text" bind:value={data.subtitleText} placeholder="Computer Science Student" />
 									</div>
 									<div class="flex-1">
-										<input type="text" bind:value={data.subtitleOrganization} placeholder="Kent State University" />
+										<label for="subtitleOrganization" class="sr-only">Company or organization</label>
+										<input id="subtitleOrganization" type="text" bind:value={data.subtitleOrganization} placeholder="Kent State University" />
 									</div>
 									<div class="flex-1">
-										<input type="url" bind:value={data.subtitleUrl} placeholder="Organization URL (optional)" />
+										<label for="subtitleUrl" class="sr-only">Organization URL</label>
+										<input id="subtitleUrl" type="url" bind:value={data.subtitleUrl} placeholder="Organization URL (optional)" />
 									</div>
 								</div>
-							</div>
+							</fieldset>
 
 							<div>
 								<div class="flex items-center justify-between mb-2">
-									<label class="!mb-0">Titles / Roles</label>
+									<span class="text-sm font-medium text-slate-700">Titles / Roles</span>
 									<button
 										onclick={addTitle}
 										class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
@@ -207,23 +210,26 @@
 								{#each data.titles as title, i}
 									<div class="flex gap-2 mb-2 flex-wrap">
 										<div class="flex-1 min-w-[120px]">
-											<input
-												type="text"
-												bind:value={title.title}
-												placeholder="Title / Role"
+										<input
+											type="text"
+											bind:value={title.title}
+											aria-label="Title or role"
+											placeholder="Title / Role"
 											/>
 										</div>
 										<div class="flex-1 min-w-[120px]">
-											<input
-												type="text"
-												bind:value={title.organization}
+										<input
+											type="text"
+											bind:value={title.organization}
+											aria-label="Title organization"
 												placeholder="Organization"
 											/>
 										</div>
 										<div class="flex-1 min-w-[120px]">
-											<input
-												type="url"
-												bind:value={title.url}
+										<input
+											type="url"
+											bind:value={title.url}
+											aria-label="Title organization URL"
 												placeholder="Organization URL (optional)"
 											/>
 										</div>
@@ -247,8 +253,9 @@
 					{:else if activeTab === 'photo'}
 						<div class="space-y-4">
 							<div>
-								<label>Upload Photo</label>
+								<label for="profileImage">Upload Photo</label>
 								<input
+									id="profileImage"
 									type="file"
 									accept="image/*"
 									onchange={handleImageUpload}
@@ -323,7 +330,7 @@
 					{:else if activeTab === 'social'}
 						<div class="space-y-4">
 							<div class="flex items-center justify-between mb-2">
-								<label class="!mb-0">Social Links</label>
+									<span class="text-sm font-medium text-slate-700">Social Links</span>
 								<button
 									onclick={addSocialLink}
 									class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
@@ -340,7 +347,7 @@
 										{@html getSocialIcon(link.platform, 20)}
 									</div>
 									<div class="flex-1 space-y-2">
-										<select bind:value={link.platform}>
+										<select bind:value={link.platform} aria-label="Social platform">
 											{#each socialPlatforms as sp}
 												<option value={sp.value}>{sp.label}</option>
 											{/each}
@@ -348,6 +355,7 @@
 										<input
 											type="url"
 											bind:value={link.url}
+											aria-label="Social profile URL"
 											placeholder="https://..."
 										/>
 									</div>
@@ -364,17 +372,19 @@
 							{/each}
 
 							<!-- CTA / Action Link -->
-							<div class="border-t border-slate-200 pt-4 mt-4">
-								<label class="!mb-1">Action Link <span class="text-slate-400">(optional — e.g. "Book a Meeting")</span></label>
+							<fieldset class="border-t border-slate-200 pt-4 mt-4">
+								<legend class="!mb-1">Action Link <span class="text-slate-400">(optional — e.g. "Book a Meeting")</span></legend>
 								<div class="flex gap-2">
 									<div class="flex-1">
-										<input type="text" bind:value={data.ctaText} placeholder="Book a Meeting" />
+										<label for="ctaText" class="sr-only">Action link text</label>
+										<input id="ctaText" type="text" bind:value={data.ctaText} placeholder="Book a Meeting" />
 									</div>
 									<div class="flex-1">
-										<input type="url" bind:value={data.ctaUrl} placeholder="https://cal.com/you" />
+										<label for="ctaUrl" class="sr-only">Action link URL</label>
+										<input id="ctaUrl" type="url" bind:value={data.ctaUrl} placeholder="https://cal.com/you" />
 									</div>
 								</div>
-							</div>
+							</fieldset>
 						</div>
 
 					<!-- STYLE TAB -->

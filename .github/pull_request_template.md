@@ -1,0 +1,29 @@
+## Summary
+
+<!-- What changed, and what user or contributor problem does it solve? -->
+
+## Verification
+
+<!-- List the commands and manual checks you ran, with their results. -->
+
+- [ ] `npm test`
+- [ ] `npm run check`
+- [ ] `npm run lint`
+- [ ] `npm run build`
+- [ ] I added or updated tests for changed behavior.
+- [ ] I included screenshots or recordings for meaningful UI changes, or marked this not applicable below.
+
+## Risk and deployment
+
+<!-- Note privacy, email-client compatibility, dependency-size, migration, or Vercel implications. Write "None" if not applicable. -->
+
+## Checklist
+
+- [ ] My changes are focused and follow `CONTRIBUTING.md`.
+- [ ] I updated relevant documentation.
+- [ ] I used synthetic test data and did not commit secrets or personal signature information.
+- [ ] I reviewed the diff for unrelated generated or formatting changes.
+
+<!-- Leave the line below as is. -->
+
+AI assistance: no
