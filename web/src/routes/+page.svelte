@@ -129,35 +129,35 @@
 	];
 </script>
 
-<div class="min-h-screen bg-slate-100 flex flex-col">
+<div class="min-h-screen bg-gray-100 flex flex-col lg:h-screen lg:overflow-hidden">
 	<!-- Header -->
-	<header class="bg-white border-b border-slate-200 px-6 py-3">
-		<div class="max-w-[1600px] mx-auto flex items-center justify-between">
-			<h1 class="text-lg font-bold text-slate-800">EmailSmith</h1>
-			<div class="flex items-center gap-3">
-				<button
-					onclick={resetData}
-					class="text-sm text-slate-500 hover:text-red-500 transition-colors cursor-pointer"
-				>
-					Reset
+	<header class="bg-white shadow-sm">
+		<div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2">
+			<h1 class="text-2xl font-bold text-gray-900">EmailSmith</h1>
+			<div class="flex flex-wrap gap-2">
+				<button onclick={resetData} class="secondary">Reset</button>
+				<button onclick={copyHtml} class="secondary">Copy HTML</button>
+				<button onclick={copyTypst} class="secondary">Copy Typst</button>
+				<button onclick={copyRichSignature} class="primary">
+					{copied ? 'Copied' : 'Copy Signature'}
 				</button>
 			</div>
 		</div>
 	</header>
 
 	<!-- Main content -->
-	<div class="flex-1 max-w-[1600px] mx-auto p-4 lg:p-6 w-full">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+	<main class="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:flex-1 lg:min-h-0">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:h-full lg:min-h-0">
 			<!-- Left: Form Panel -->
-			<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+			<div class="bg-white rounded-lg shadow p-6 overflow-hidden flex flex-col max-h-[calc(100vh-10rem)] lg:max-h-none lg:h-full">
 				<!-- Tab bar -->
-				<div class="flex border-b border-slate-200 bg-slate-50 overflow-x-auto">
+				<div class="flex flex-wrap gap-2 mb-6 border-b pb-4 overflow-x-auto">
 					{#each tabs as tab}
 						<button
 							onclick={() => (activeTab = tab.id)}
-							class="px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer {activeTab === tab.id
-								? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-								: 'text-slate-500 hover:text-slate-700'}"
+							class="px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors cursor-pointer {activeTab === tab.id
+								? 'bg-blue-600 text-white'
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
 						>
 							{tab.label}
 						</button>
@@ -165,7 +165,7 @@
 				</div>
 
 				<!-- Tab content -->
-				<div class="p-5 overflow-auto max-h-[calc(100vh-14rem)]">
+				<div class="overflow-auto flex-1 min-h-0 pr-1">
 					<!-- INFO TAB -->
 					{#if activeTab === 'info'}
 						<div class="space-y-4">
@@ -175,12 +175,12 @@
 							</div>
 
 							<div>
-								<label for="pronouns">Pronouns <span class="text-slate-400">(optional)</span></label>
+								<label for="pronouns">Pronouns <span class="text-gray-400">(optional)</span></label>
 								<input type="text" id="pronouns" bind:value={data.pronouns} placeholder="he/him" />
 							</div>
 
 							<fieldset>
-								<legend class="!mb-1">Education / Company <span class="text-slate-400">(optional)</span></legend>
+								<legend class="!mb-1">Education / Company <span class="text-gray-400">(optional)</span></legend>
 								<div class="flex gap-2">
 									<div class="flex-1">
 										<label for="subtitleText" class="sr-only">Education or role</label>
@@ -199,12 +199,12 @@
 
 							<div>
 								<div class="flex items-center justify-between mb-2">
-									<span class="text-sm font-medium text-slate-700">Titles / Roles</span>
+									<span class="text-sm font-medium text-gray-700">Titles / Roles</span>
 									<button
 										onclick={addTitle}
-										class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
+										class="secondary text-xs"
 									>
-										+ Add Title
+										Add Title
 									</button>
 								</div>
 								{#each data.titles as title, i}
@@ -259,7 +259,7 @@
 									type="file"
 									accept="image/*"
 									onchange={handleImageUpload}
-									class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 file:cursor-pointer"
+									class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 file:cursor-pointer"
 								/>
 							</div>
 
@@ -268,7 +268,7 @@
 									<img
 										src={data.profileImage}
 										alt="Preview"
-										class="object-cover border border-slate-200"
+										class="object-cover border border-gray-200"
 										style="width: {data.layout.imageSize}px; height: {data.layout.imageSize}px; border-radius: {data.layout.imageShape === 'circle' ? '50%' : data.layout.imageShape === 'rounded' ? '8px' : '0'};"
 									/>
 									<button
@@ -281,9 +281,9 @@
 							{/if}
 
 							<div>
-								<label for="imageUrl">Image URL <span class="text-slate-400">(for email HTML — hosted image recommended)</span></label>
+								<label for="imageUrl">Image URL <span class="text-gray-400">(for email HTML — hosted image recommended)</span></label>
 								<input type="url" id="imageUrl" bind:value={data.profileImageUrl} placeholder="https://example.com/photo.jpg" />
-								<p class="text-xs text-slate-400 mt-1">If set, the email HTML will use this URL instead of the embedded image. Recommended for email compatibility.</p>
+								<p class="text-xs text-gray-400 mt-1">If set, the email HTML will use this URL instead of the embedded image. Recommended for email compatibility.</p>
 							</div>
 
 							<div>
@@ -330,19 +330,19 @@
 					{:else if activeTab === 'social'}
 						<div class="space-y-4">
 							<div class="flex items-center justify-between mb-2">
-									<span class="text-sm font-medium text-slate-700">Social Links</span>
+									<span class="text-sm font-medium text-gray-700">Social Links</span>
 								<button
 									onclick={addSocialLink}
-									class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
+									class="secondary text-xs"
 								>
-									+ Add Link
+									Add Link
 								</button>
 							</div>
 							{#if data.socialLinks.length === 0}
-								<p class="text-sm text-slate-400 italic">No social links added yet.</p>
+								<p class="text-sm text-gray-400 italic">No social links added yet.</p>
 							{/if}
 							{#each data.socialLinks as link, i}
-								<div class="flex gap-2 items-start p-3 bg-slate-50 rounded-lg">
+								<div class="flex gap-2 items-start p-3 bg-gray-50 rounded-lg">
 									<div class="flex-shrink-0 mt-1">
 										{@html getSocialIcon(link.platform, 20)}
 									</div>
@@ -372,8 +372,8 @@
 							{/each}
 
 							<!-- CTA / Action Link -->
-							<fieldset class="border-t border-slate-200 pt-4 mt-4">
-								<legend class="!mb-1">Action Link <span class="text-slate-400">(optional — e.g. "Book a Meeting")</span></legend>
+							<fieldset class="border-t border-gray-200 pt-4 mt-4">
+								<legend class="!mb-1">Action Link <span class="text-gray-400">(optional — e.g. "Book a Meeting")</span></legend>
 								<div class="flex gap-2">
 									<div class="flex-1">
 										<label for="ctaText" class="sr-only">Action link text</label>
@@ -392,29 +392,29 @@
 						<div class="space-y-5">
 							<!-- Layout -->
 							<fieldset>
-								<legend class="text-sm font-semibold text-slate-700 mb-2">Layout</legend>
+								<legend class="mb-2">Layout</legend>
 								<div class="grid grid-cols-2 gap-2">
 									<button
 										onclick={() => (data.layout.layout = 'horizontal')}
-										class="p-3 rounded-lg border text-sm text-center cursor-pointer transition-colors {data.layout.layout === 'horizontal' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 hover:border-slate-300'}"
+										class="p-3 rounded-lg border text-sm text-center cursor-pointer transition-colors {data.layout.layout === 'horizontal' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300'}"
 									>
 										<div class="flex items-center justify-center gap-2 mb-1">
-											<div class="w-6 h-6 bg-slate-300 rounded-full flex-shrink-0"></div>
+											<div class="w-6 h-6 bg-gray-300 rounded-full flex-shrink-0"></div>
 											<div class="text-left">
-												<div class="w-12 h-1 bg-slate-300 rounded mb-1"></div>
-												<div class="w-8 h-1 bg-slate-200 rounded"></div>
+												<div class="w-12 h-1 bg-gray-300 rounded mb-1"></div>
+												<div class="w-8 h-1 bg-gray-200 rounded"></div>
 											</div>
 										</div>
 										Horizontal
 									</button>
 									<button
 										onclick={() => (data.layout.layout = 'stacked')}
-										class="p-3 rounded-lg border text-sm text-center cursor-pointer transition-colors {data.layout.layout === 'stacked' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 hover:border-slate-300'}"
+										class="p-3 rounded-lg border text-sm text-center cursor-pointer transition-colors {data.layout.layout === 'stacked' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300'}"
 									>
 										<div class="flex flex-col items-center mb-1">
-											<div class="w-6 h-6 bg-slate-300 rounded-full mb-1"></div>
-											<div class="w-12 h-1 bg-slate-300 rounded mb-1"></div>
-											<div class="w-8 h-1 bg-slate-200 rounded"></div>
+											<div class="w-6 h-6 bg-gray-300 rounded-full mb-1"></div>
+											<div class="w-12 h-1 bg-gray-300 rounded mb-1"></div>
+											<div class="w-8 h-1 bg-gray-200 rounded"></div>
 										</div>
 										Stacked
 									</button>
@@ -436,7 +436,7 @@
 							<div>
 								<label class="flex items-center gap-2 cursor-pointer">
 									<input type="checkbox" bind:checked={data.layout.showSignoff} class="rounded" />
-									<span class="text-sm text-slate-600">Show sign-off text</span>
+									<span class="text-sm text-gray-600">Show sign-off text</span>
 								</label>
 								{#if data.layout.showSignoff}
 									<input
@@ -460,7 +460,7 @@
 
 							<!-- Font Sizes -->
 							<fieldset>
-								<legend class="text-sm font-semibold text-slate-700 mb-2">Font Sizes</legend>
+								<legend class="mb-2">Font Sizes</legend>
 								<div class="grid grid-cols-2 gap-3">
 									<div>
 										<label for="nameSize">Name: {data.fonts.nameSize}px</label>
@@ -483,7 +483,7 @@
 
 							<!-- Colors -->
 							<fieldset>
-								<legend class="text-sm font-semibold text-slate-700 mb-2">Colors</legend>
+								<legend class="mb-2">Colors</legend>
 								<div class="grid grid-cols-2 gap-3">
 									{#each [
 										{ key: 'nameColor', label: 'Name' },
@@ -497,9 +497,9 @@
 											<input
 												type="color"
 												bind:value={data.colors[colorOpt.key as keyof typeof data.colors]}
-												class="w-8 h-8 rounded border border-slate-200 cursor-pointer"
+												class="w-8 h-8 rounded border border-gray-200 cursor-pointer"
 											/>
-											<span class="text-sm text-slate-600">{colorOpt.label}</span>
+											<span class="text-sm text-gray-600">{colorOpt.label}</span>
 										</div>
 									{/each}
 								</div>
@@ -510,10 +510,13 @@
 			</div>
 
 			<!-- Right: Preview Panel -->
-			<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+			<div class="flex h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-lg bg-gray-500 p-4 shadow lg:h-full">
 				<!-- View mode tabs + actions -->
-				<div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4">
-					<div class="flex">
+				<div class="flex items-center justify-between mb-4 gap-3">
+					<h2 class="text-lg font-semibold text-white">
+						{viewMode === 'preview' ? 'Signature Preview' : viewMode === 'html' ? 'HTML Code' : 'Typst Code'}
+					</h2>
+					<div class="flex gap-2">
 						{#each [
 							{ id: 'preview', label: 'Preview' },
 							{ id: 'html', label: 'HTML' },
@@ -521,66 +524,61 @@
 						] as mode}
 							<button
 								onclick={() => (viewMode = mode.id)}
-								class="px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer {viewMode === mode.id
-									? 'text-blue-600 border-b-2 border-blue-600'
-									: 'text-slate-500 hover:text-slate-700'}"
+								class="text-xs {viewMode === mode.id ? 'primary' : 'secondary'}"
 							>
 								{mode.label}
 							</button>
 						{/each}
 					</div>
-					<div class="flex items-center gap-2">
-						<button
-							onclick={copyRichSignature}
-							class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition-colors cursor-pointer"
-						>
-							{copied ? '✓ Copied!' : 'Copy Signature'}
-						</button>
-						<button
-							onclick={copyHtml}
-							class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded hover:bg-slate-200 transition-colors cursor-pointer"
-						>
-							Copy HTML
-						</button>
-						<button
-							onclick={copyTypst}
-							class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded hover:bg-slate-200 transition-colors cursor-pointer"
-						>
-							Copy Typst
-						</button>
-					</div>
 				</div>
 
 				<!-- Preview content -->
-				<div class="flex-1 overflow-auto max-h-[calc(100vh-14rem)] p-6">
+				<div class="flex-1 min-h-0 overflow-auto rounded-lg bg-gray-100 p-6">
 					{#if viewMode === 'preview'}
-						<div class="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+						<div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
 							<div class="signature-preview">
 								{@html signatureHtml}
 							</div>
 						</div>
-						<p class="text-xs text-slate-400 mt-3 text-center">This is a live preview of your email signature.</p>
+						<p class="text-xs text-gray-400 mt-3 text-center">This is a live preview of your email signature.</p>
 
 					{:else if viewMode === 'html'}
 						<div class="relative">
-							<pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-auto font-mono leading-relaxed whitespace-pre-wrap break-all"><code>{signatureHtml}</code></pre>
+							<pre class="bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-auto font-mono leading-relaxed whitespace-pre-wrap break-all"><code>{signatureHtml}</code></pre>
 						</div>
 
 					{:else if viewMode === 'typst'}
 						<div class="relative">
-							<pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-auto font-mono leading-relaxed whitespace-pre-wrap break-all"><code>{typstCode}</code></pre>
-							<p class="text-xs text-slate-400 mt-3">Typst source code for the signature. Can be compiled with Typst to generate a high-quality image.</p>
+							<pre class="bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-auto font-mono leading-relaxed whitespace-pre-wrap break-all"><code>{typstCode}</code></pre>
+							<p class="text-xs text-gray-400 mt-3">Typst source code for the signature. Can be compiled with Typst to generate a high-quality image.</p>
 						</div>
 					{/if}
 				</div>
 			</div>
 		</div>
-	</div>
+	</main>
 
 	<!-- Footer -->
-	<footer class="border-t border-slate-200 bg-white mt-6 px-6 py-4">
-		<div class="max-w-[1600px] mx-auto text-center text-sm text-slate-400">
-			Made by <a href="https://asternberg.xyz" class="text-blue-500 hover:text-blue-600 transition-colors">Austin Sternberg</a>
+	<footer class="border-t border-gray-200 bg-white mt-auto">
+		<div
+			class="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[11px] leading-tight text-gray-500"
+		>
+			<p>
+				{new Date().getFullYear()} EmailSmith -
+				<a href="https://asternberg.xyz" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700"
+					>Austin Sternberg</a
+				>
+				&middot; A ToolSmith product
+			</p>
+			<p>
+				Missing something?
+				<a
+					href="https://github.com/YoyoJesus/EmailSmith"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium text-blue-600 underline hover:text-blue-800">Contribute on GitHub</a
+				>
+			</p>
 		</div>
 	</footer>
 </div>
