@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { signatureStore } from '$lib/store';
+	import { footerStore } from '$lib/footer-store';
+	import AppFooter from '$lib/components/AppFooter.svelte';
 	import { generateSignatureHtml } from '$lib/html-generator';
 	import { generateTypstCode } from '$lib/typst-generator';
 	import { getSocialIcon, getSocialColor } from '$lib/social-icons';
@@ -31,6 +33,7 @@
 
 	onMount(() => {
 		data = signatureStore.loadFromStorage();
+		footerStore.loadFromStorage();
 		loaded = true;
 	});
 
@@ -558,29 +561,7 @@
 		</div>
 	</main>
 
-	<!-- Footer -->
-	<footer class="border-t border-gray-200 bg-white mt-auto">
-		<div
-			class="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[11px] leading-tight text-gray-500"
-		>
-			<p>
-				{new Date().getFullYear()} EmailSmith -
-				<a href="https://asternberg.xyz" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700"
-					>Austin Sternberg</a
-				>
-				&middot; A ToolSmith product
-			</p>
-			<p>
-				Missing something?
-				<a
-					href="https://github.com/YoyoJesus/EmailSmith"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="font-medium text-blue-600 underline hover:text-blue-800">Contribute on GitHub</a
-				>
-			</p>
-		</div>
-	</footer>
+	<AppFooter />
 </div>
 
 <style>
