@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { defaultSignatureData, fontFamilies, type FontSettings, type SignatureData } from '$lib/types';
 
-	let { data }: { data: SignatureData } = $props();
+	let { data = $bindable() }: { data: SignatureData } = $props();
 	const uid = $props.id();
 
 	const SIZES: { key: Exclude<keyof FontSettings, 'fontFamily'>; label: string; min: number; max: number }[] = [

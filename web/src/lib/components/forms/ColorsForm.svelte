@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { defaultSignatureData, type ColorSettings, type SignatureData } from '$lib/types';
 
-	let { data }: { data: SignatureData } = $props();
+	let { data = $bindable() }: { data: SignatureData } = $props();
 	const uid = $props.id();
 
 	const COLORS: { key: keyof ColorSettings; label: string; hint: string }[] = [

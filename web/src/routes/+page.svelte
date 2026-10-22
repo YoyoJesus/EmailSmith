@@ -132,19 +132,19 @@
 				<TabBar {tabs} bind:activeTab />
 
 				{#if activeTab === 'info'}
-					<InfoForm {data} />
+					<InfoForm bind:data />
 				{:else if activeTab === 'photo'}
-					<PhotoForm {data} />
+					<PhotoForm bind:data />
 				{:else if activeTab === 'contact'}
-					<ContactForm {data} />
+					<ContactForm bind:data />
 				{:else if activeTab === 'social'}
-					<SocialForm {data} />
+					<SocialForm bind:data />
 				{:else if activeTab === 'layout'}
-					<LayoutForm {data} />
+					<LayoutForm bind:data />
 				{:else if activeTab === 'fonts'}
-					<FontsForm {data} />
+					<FontsForm bind:data />
 				{:else if activeTab === 'colors'}
-					<ColorsForm {data} />
+					<ColorsForm bind:data />
 				{/if}
 			</div>
 

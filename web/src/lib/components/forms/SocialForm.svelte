@@ -4,7 +4,7 @@
 	import { moveAt } from '$lib/reorder';
 	import EntryCard from '../EntryCard.svelte';
 
-	let { data }: { data: SignatureData } = $props();
+	let { data = $bindable() }: { data: SignatureData } = $props();
 	const uid = $props.id();
 
 	function addSocialLink() {
