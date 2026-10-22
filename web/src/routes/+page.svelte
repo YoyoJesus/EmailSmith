@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { signatureStore } from '$lib/store';
 	import { footerStore } from '$lib/footer-store';
-	import AppFooter from '$lib/components/AppFooter.svelte';
+	import { OWNED_LOCAL_STORAGE_KEYS, removeOwnedStorageKeys } from '$lib/clear-browser-data';
 	import { generateSignatureHtml } from '$lib/html-generator';
 	import { generateTypstCode } from '$lib/typst-generator';
 	import { getSocialIcon, getSocialColor } from '$lib/social-icons';
@@ -13,22 +13,33 @@
 		type SignatureData,
 		type SocialPlatform,
 	} from '$lib/types';
+	import AppHeader, { type ViewMode } from '$lib/components/AppHeader.svelte';
+	import AppFooter from '$lib/components/AppFooter.svelte';
+	import ClearDataModal from '$lib/components/ClearDataModal.svelte';
+	import PreviewPanel from '$lib/components/PreviewPanel.svelte';
 
 	let data: SignatureData = $state(structuredClone(defaultSignatureData));
 	let activeTab: string = $state('info');
-	let viewMode: string = $state('preview');
-	let copied = $state(false);
+	let viewMode: ViewMode = $state('preview');
+	let copyStatus = $state('');
+	let clearDataOpen = $state(false);
 	let loaded = $state(false);
+	let signatureCopied = $derived(copyStatus.startsWith('Signature'));
+	let skipNextPersistence = false;
 
 	let signatureHtml = $derived(generateSignatureHtml(data));
 	let typstCode = $derived(generateTypstCode(data));
 
-	// Persist state — only after initial load to avoid overwriting saved data
+	// Persist state only after the initial load so saved data is not overwritten.
 	$effect(() => {
-		if (loaded) {
-			signatureStore.set(data);
-			signatureStore.saveToStorage(data);
+		const snapshot = $state.snapshot(data);
+		if (!loaded) return;
+		if (skipNextPersistence) {
+			skipNextPersistence = false;
+			return;
 		}
+		signatureStore.set(snapshot);
+		signatureStore.saveToStorage(snapshot);
 	});
 
 	onMount(() => {
@@ -37,7 +48,6 @@
 		loaded = true;
 	});
 
-	// Image upload handler
 	function handleImageUpload(event: Event) {
 		const input = event.target as HTMLInputElement;
 		const file = input?.files?.[0];
@@ -49,7 +59,6 @@
 		reader.readAsDataURL(file);
 	}
 
-	// Title management
 	function addTitle() {
 		data.titles = [...data.titles, { title: '', organization: '', url: '' }];
 	}
@@ -57,7 +66,6 @@
 		data.titles = data.titles.filter((_, i) => i !== index);
 	}
 
-	// Social link management
 	function addSocialLink() {
 		data.socialLinks = [...data.socialLinks, { platform: 'linkedin' as SocialPlatform, url: '' }];
 	}
@@ -65,62 +73,58 @@
 		data.socialLinks = data.socialLinks.filter((_, i) => i !== index);
 	}
 
-	// Copy HTML to clipboard
-	async function copyHtml() {
+	function announce(message: string) {
+		copyStatus = message;
+		setTimeout(() => {
+			if (copyStatus === message) copyStatus = '';
+		}, 2000);
+	}
+
+	async function copyText(text: string, label: string) {
 		try {
-			await navigator.clipboard.writeText(signatureHtml);
-			copied = true;
-			setTimeout(() => (copied = false), 2000);
+			await navigator.clipboard.writeText(text);
 		} catch {
-			// Fallback
 			const textarea = document.createElement('textarea');
-			textarea.value = signatureHtml;
+			textarea.value = text;
 			document.body.appendChild(textarea);
 			textarea.select();
 			document.execCommand('copy');
 			document.body.removeChild(textarea);
-			copied = true;
-			setTimeout(() => (copied = false), 2000);
 		}
+		announce(`${label} copied to clipboard.`);
 	}
 
-	// Copy rich HTML to clipboard (for pasting into email clients)
+	// Rich HTML pastes as a formatted signature in email clients.
 	async function copyRichSignature() {
 		try {
-			const blob = new Blob([signatureHtml], { type: 'text/html' });
 			await navigator.clipboard.write([
-				new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([signatureHtml], { type: 'text/plain' }) }),
+				new ClipboardItem({
+					'text/html': new Blob([signatureHtml], { type: 'text/html' }),
+					'text/plain': new Blob([signatureHtml], { type: 'text/plain' }),
+				}),
 			]);
-			copied = true;
-			setTimeout(() => (copied = false), 2000);
+			announce('Signature copied to clipboard.');
 		} catch {
-			copyHtml();
+			await copyText(signatureHtml, 'Signature HTML');
 		}
 	}
 
-	// Copy Typst code to clipboard
-	async function copyTypst() {
+	function clearBrowserData(): string | null {
+		let failed: string[] = [...OWNED_LOCAL_STORAGE_KEYS];
 		try {
-			await navigator.clipboard.writeText(typstCode);
-			copied = true;
-			setTimeout(() => (copied = false), 2000);
+			failed = removeOwnedStorageKeys(window.localStorage, OWNED_LOCAL_STORAGE_KEYS).failed;
 		} catch {
-			const textarea = document.createElement('textarea');
-			textarea.value = typstCode;
-			document.body.appendChild(textarea);
-			textarea.select();
-			document.execCommand('copy');
-			document.body.removeChild(textarea);
-			copied = true;
-			setTimeout(() => (copied = false), 2000);
+			/* Storage access can be blocked by the browser. */
 		}
-	}
-
-	// Reset all data
-	function resetData() {
-		if (confirm('Reset all fields to defaults?')) {
-			data = structuredClone(defaultSignatureData);
+		skipNextPersistence = true;
+		data = structuredClone(defaultSignatureData);
+		footerStore.reset();
+		activeTab = 'info';
+		viewMode = 'preview';
+		if (failed.length) {
+			return 'The page was reset, but browser storage could not confirm removal of all saved data. Check your browser storage settings and try again.';
 		}
+		return null;
 	}
 
 	const tabs = [
@@ -133,20 +137,15 @@
 </script>
 
 <div class="min-h-screen bg-gray-100 flex flex-col lg:h-screen lg:overflow-hidden">
-	<!-- Header -->
-	<header class="bg-white shadow-sm">
-		<div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2">
-			<h1 class="text-2xl font-bold text-gray-900">EmailSmith</h1>
-			<div class="flex flex-wrap gap-2">
-				<button onclick={resetData} class="secondary">Reset</button>
-				<button onclick={copyHtml} class="secondary">Copy HTML</button>
-				<button onclick={copyTypst} class="secondary">Copy Typst</button>
-				<button onclick={copyRichSignature} class="primary">
-					{copied ? 'Copied' : 'Copy Signature'}
-				</button>
-			</div>
-		</div>
-	</header>
+	<AppHeader
+		bind:viewMode
+		{copyStatus}
+		{signatureCopied}
+		onCopySignature={copyRichSignature}
+		onCopyHtml={() => copyText(signatureHtml, 'HTML')}
+		onCopyTypst={() => copyText(typstCode, 'Typst')}
+		onClearData={() => (clearDataOpen = true)}
+	/>
 
 	<!-- Main content -->
 	<main class="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:flex-1 lg:min-h-0">
@@ -512,63 +511,10 @@
 				</div>
 			</div>
 
-			<!-- Right: Preview Panel -->
-			<div class="flex h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-lg bg-gray-500 p-4 shadow lg:h-full">
-				<!-- View mode tabs + actions -->
-				<div class="flex items-center justify-between mb-4 gap-3">
-					<h2 class="text-lg font-semibold text-white">
-						{viewMode === 'preview' ? 'Signature Preview' : viewMode === 'html' ? 'HTML Code' : 'Typst Code'}
-					</h2>
-					<div class="flex gap-2">
-						{#each [
-							{ id: 'preview', label: 'Preview' },
-							{ id: 'html', label: 'HTML' },
-							{ id: 'typst', label: 'Typst' },
-						] as mode}
-							<button
-								onclick={() => (viewMode = mode.id)}
-								class="text-xs {viewMode === mode.id ? 'primary' : 'secondary'}"
-							>
-								{mode.label}
-							</button>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Preview content -->
-				<div class="flex-1 min-h-0 overflow-auto rounded-lg bg-gray-100 p-6">
-					{#if viewMode === 'preview'}
-						<div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-							<div class="signature-preview">
-								{@html signatureHtml}
-							</div>
-						</div>
-						<p class="text-xs text-gray-400 mt-3 text-center">This is a live preview of your email signature.</p>
-
-					{:else if viewMode === 'html'}
-						<div class="relative">
-							<pre class="bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-auto font-mono leading-relaxed whitespace-pre-wrap break-all"><code>{signatureHtml}</code></pre>
-						</div>
-
-					{:else if viewMode === 'typst'}
-						<div class="relative">
-							<pre class="bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-auto font-mono leading-relaxed whitespace-pre-wrap break-all"><code>{typstCode}</code></pre>
-							<p class="text-xs text-gray-400 mt-3">Typst source code for the signature. Can be compiled with Typst to generate a high-quality image.</p>
-						</div>
-					{/if}
-				</div>
-			</div>
+			<PreviewPanel {viewMode} {signatureHtml} {typstCode} onCopy={copyText} />
 		</div>
 	</main>
 
 	<AppFooter />
+	<ClearDataModal bind:open={clearDataOpen} onConfirm={clearBrowserData} />
 </div>
-
-<style>
-	.signature-preview :global(a) {
-		text-decoration: none;
-	}
-	.signature-preview :global(img) {
-		max-width: none;
-	}
-</style>

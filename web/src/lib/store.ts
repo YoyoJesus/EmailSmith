@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 import type { SignatureData } from "./types";
 import { defaultSignatureData } from "./types";
 
-const STORAGE_KEY = "email-signature-data";
+export const STORAGE_KEY = "email-signature-data";
 
 function createSignatureStore() {
   const { subscribe, set, update } = writable<SignatureData>(
