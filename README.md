@@ -10,13 +10,13 @@ EmailSmith is a browser-based email signature designer with a live preview and e
 - Customize fonts, colors, dividers, image shape, and sizing.
 - Copy a rich signature for pasting into compatible email clients.
 - Copy portable HTML or Typst source for further editing.
-- Keep work between visits using browser storage.
+- Keep work between visits using browser storage, and delete it from the More menu when you are done.
 
 ## Privacy and storage
 
 EmailSmith is a static SvelteKit application. Signature fields and uploaded profile images are processed in the browser and stored in that browser's `localStorage`; the project has no application server or database.
 
-Browser storage is convenient, not a secure vault. Avoid entering secrets, and remember that clearing site data or using another browser removes access to saved signature data. A hosted image URL is generally more compatible with email clients than a browser-uploaded image embedded as a data URL.
+Browser storage is convenient, not a secure vault. Avoid entering secrets, and remember that clearing site data or using another browser removes access to saved signature data. **More > Delete saved data** removes the signature and footer preference this app saved in the current browser. A hosted image URL is generally more compatible with email clients than a browser-uploaded image embedded as a data URL.
 
 ## Local development
 
