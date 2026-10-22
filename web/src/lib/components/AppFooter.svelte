@@ -25,11 +25,9 @@
 			class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 lg:py-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 text-[11px] leading-snug text-gray-500"
 		>
 			<p class="flex flex-wrap items-center gap-x-2 gap-y-1">
-				<span class="font-medium text-gray-700">&copy; {new Date().getFullYear()} EmailSmith</span>
+				<span class="font-medium text-gray-700">&copy; {new Date().getFullYear()} ToolSmith</span>
 				<span aria-hidden="true" class="text-gray-300">&middot;</span>
-				<span>by {@render external('https://asternberg.xyz', 'Austin Sternberg')}</span>
-				<span aria-hidden="true" class="text-gray-300">&middot;</span>
-				<span>A ToolSmith product</span>
+				<span>EmailSmith by {@render external('https://asternberg.xyz', 'Austin Sternberg')}</span>
 			</p>
 			<div class="flex flex-wrap items-center gap-2 sm:justify-end">
 				<a
