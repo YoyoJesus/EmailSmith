@@ -1,5 +1,11 @@
-import type { SignatureData } from "./types";
+import { getSocialLabel, type SignatureData } from "./types";
 import { getSocialIconDataUri } from "./social-icons";
+import {
+  displayUrl,
+  normalizePhone,
+  normalizeUrl,
+  resolveSocialUrl,
+} from "./links";
 
 function escapeHtml(str: string): string {
   return str
@@ -7,6 +13,11 @@ function escapeHtml(str: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function link(href: string, text: string, style: string): string {
+  if (!href) return text;
+  return `<a target="_blank" href="${escapeHtml(href)}" style="${style}">${text}</a>`;
 }
 
 export function generateSignatureHtml(data: SignatureData): string {
@@ -28,8 +39,9 @@ export function generateSignatureHtml(data: SignatureData): string {
   const imgSrc = data.profileImageUrl || data.profileImage;
   const hasImage = !!imgSrc;
   const hasContact = !!(email || phone || website);
-  const hasSocial = socialLinks.length > 0 && socialLinks.some((s) => s.url);
+  const hasSocial = socialLinks.some((s) => s.url);
   const hasTitles = titles.some((t) => t.title || t.organization);
+  const hasHeader = !!(name || subtitleText || subtitleOrganization);
 
   const borderRadius =
     layout.imageShape === "circle"
@@ -67,15 +79,14 @@ export function generateSignatureHtml(data: SignatureData): string {
   if (subtitleText || subtitleOrganization) {
     let orgPart = "";
     if (subtitleOrganization) {
-      const orgBold = `<strong>${escapeHtml(subtitleOrganization)}</strong>`;
-      if (subtitleUrl) {
-        const href = subtitleUrl.startsWith("http")
-          ? subtitleUrl
-          : `https://${subtitleUrl}`;
-        orgPart = `<a target="_blank" href="${escapeHtml(href)}" style="color: ${colors.linkColor}; text-decoration: none; font-weight: bold;">${escapeHtml(subtitleOrganization)}</a>`;
-      } else {
-        orgPart = orgBold;
-      }
+      const href = normalizeUrl(subtitleUrl);
+      orgPart = href
+        ? link(
+            href,
+            escapeHtml(subtitleOrganization),
+            `color: ${colors.linkColor}; text-decoration: none; font-weight: bold;`,
+          )
+        : `<strong>${escapeHtml(subtitleOrganization)}</strong>`;
     }
     const parts = [
       subtitleText ? escapeHtml(subtitleText) : "",
@@ -94,13 +105,11 @@ export function generateSignatureHtml(data: SignatureData): string {
       let titlePart = t.title ? `<strong>${escapeHtml(t.title)}</strong>` : "";
       let orgPart = "";
       if (t.organization) {
-        const orgText = escapeHtml(t.organization);
-        if (t.url) {
-          const href = t.url.startsWith("http") ? t.url : `https://${t.url}`;
-          orgPart = `<a target="_blank" href="${escapeHtml(href)}" style="color: ${colors.linkColor}; text-decoration: none;">${orgText}</a>`;
-        } else {
-          orgPart = orgText;
-        }
+        orgPart = link(
+          normalizeUrl(t.url),
+          escapeHtml(t.organization),
+          `color: ${colors.linkColor}; text-decoration: none;`,
+        );
       }
       let text = "";
       if (titlePart && orgPart) {
@@ -113,22 +122,22 @@ export function generateSignatureHtml(data: SignatureData): string {
     .join("\n");
 
   // Build contact info
+  const linkStyle = `color: ${colors.linkColor}; text-decoration: none;`;
   const contactParts: string[] = [];
   if (phone) {
+    const dial = normalizePhone(phone);
     contactParts.push(
-      `<a target="_blank" href="tel:${escapeHtml(phone)}" style="color: ${colors.linkColor}; text-decoration: none;">${escapeHtml(phone)}</a>`,
+      link(dial && `tel:${dial}`, escapeHtml(phone), linkStyle),
     );
   }
   if (email) {
     contactParts.push(
-      `<a target="_blank" href="mailto:${escapeHtml(email)}" style="color: ${colors.linkColor}; text-decoration: none;">${escapeHtml(email)}</a>`,
+      link(`mailto:${email.trim()}`, escapeHtml(email), linkStyle),
     );
   }
   if (website) {
-    const href = website.startsWith("http") ? website : `https://${website}`;
-    const display = website.replace(/^https?:\/\//, "");
     contactParts.push(
-      `<a target="_blank" href="${escapeHtml(href)}" style="color: ${colors.linkColor}; text-decoration: none;">${escapeHtml(display)}</a>`,
+      link(normalizeUrl(website), escapeHtml(displayUrl(website)), linkStyle),
     );
   }
   const contactHtml =
@@ -141,27 +150,36 @@ export function generateSignatureHtml(data: SignatureData): string {
     ? `<tr><td style="padding-top: 4px;">${socialLinks
         .filter((s) => s.url)
         .map((s) => {
+          const href = resolveSocialUrl(s.platform, s.url);
+          if (!href) return "";
           const iconUri = getSocialIconDataUri(s.platform, 18);
-          const href = s.url.startsWith("http") ? s.url : `https://${s.url}`;
-          return `<a target="_blank" href="${escapeHtml(href)}" style="display: inline-block; margin-right: 6px; text-decoration: none;"><img src="${iconUri}" width="18" height="18" alt="${s.platform}" style="display: inline-block; vertical-align: middle;" /></a>`;
+          const label = escapeHtml(getSocialLabel(s.platform));
+          return `<a target="_blank" href="${escapeHtml(href)}" title="${label}" style="display: inline-block; margin-right: 6px; text-decoration: none;"><img src="${iconUri}" width="18" height="18" alt="${label}" style="display: inline-block; vertical-align: middle;" /></a>`;
         })
         .join("")}</td></tr>`
     : "";
 
   // Build CTA / action link
+  const ctaHref = normalizeUrl(data.ctaUrl);
   const ctaHtml =
-    data.ctaText && data.ctaUrl
-      ? `<tr><td style="padding-top: 6px;"><a target="_blank" href="${escapeHtml(data.ctaUrl.startsWith("http") ? data.ctaUrl : `https://${data.ctaUrl}`)}" style="font-family: ${fonts.fontFamily}; font-size: ${fonts.textSize}px; color: ${colors.linkColor}; text-decoration: none; font-weight: bold;">${escapeHtml(data.ctaText)}</a></td></tr>`
+    data.ctaText && ctaHref
+      ? `<tr><td style="padding-top: 6px;">${link(ctaHref, escapeHtml(data.ctaText), `font-family: ${fonts.fontFamily}; font-size: ${fonts.textSize}px; color: ${colors.accentColor}; text-decoration: none; font-weight: bold;`)}</td></tr>`
       : "";
+
+  // Dividers separate the header, titles, and contact groups wherever two are adjacent.
+  const headerDivider =
+    hasHeader && (hasTitles || hasContact) ? dividerHtml : "";
+  const contactDivider = hasTitles && hasContact ? dividerHtml : "";
 
   if (layout.layout === "stacked") {
     // Stacked layout: image on top, then info below
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: ${fonts.fontFamily};">
 ${signoffHtml}
 ${hasImage ? `<tr><td style="padding-bottom: 8px;"><img src="${escapeHtml(imgSrc)}" width="${layout.imageSize}" height="${layout.imageSize}" style="border-radius: ${borderRadius}; display: block; object-fit: cover;" alt="Profile photo" /></td></tr>` : ""}
-${nameHtml ? `<tr><td><table cellpadding="0" cellspacing="0" border="0">${nameHtml}${subtitleHtml}</table></td></tr>` : ""}
-${hasTitles || hasContact ? dividerHtml : ""}
+${hasHeader ? `<tr><td><table cellpadding="0" cellspacing="0" border="0">${nameHtml}${subtitleHtml}</table></td></tr>` : ""}
+${headerDivider}
 ${titlesHtml ? `<tr><td><table cellpadding="0" cellspacing="0" border="0">${titlesHtml}</table></td></tr>` : ""}
+${contactDivider}
 ${hasContact ? `<tr><td><table cellpadding="0" cellspacing="0" border="0">${contactHtml}</table></td></tr>` : ""}
 ${socialHtml ? `<tr><td><table cellpadding="0" cellspacing="0" border="0">${socialHtml}</table></td></tr>` : ""}
 ${ctaHtml ? `<tr><td><table cellpadding="0" cellspacing="0" border="0">${ctaHtml}</table></td></tr>` : ""}
@@ -177,9 +195,9 @@ ${imageHtml}
 <table cellpadding="0" cellspacing="0" border="0">
 ${nameHtml}
 ${subtitleHtml}
-${(hasTitles || subtitleHtml) && nameHtml ? dividerHtml : ""}
+${headerDivider}
 ${titlesHtml}
-${hasContact && (hasTitles || nameHtml) ? dividerHtml : ""}
+${contactDivider}
 ${contactHtml}
 ${socialHtml}
 ${ctaHtml}

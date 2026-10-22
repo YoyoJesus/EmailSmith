@@ -24,4 +24,44 @@ describe("generateTypstCode", () => {
     expect(typst).toContain("https://example.com");
     expect(typst).toContain("https://calendar.example.com/jane");
   });
+
+  it("escapes markup in content but not inside link strings", () => {
+    const data = structuredClone(defaultSignatureData);
+    data.website = "example.com/jane_doe";
+    data.name = "Jane `x` // y";
+
+    const typst = generateTypstCode(data);
+
+    expect(typst).toContain('#link("https://example.com/jane_doe")');
+    expect(typst).toContain("Jane \\`x\\` \\/\\/ y");
+  });
+
+  it("notes that photo.jpg is required for uploaded and hosted images", () => {
+    const uploaded = structuredClone(defaultSignatureData);
+    uploaded.profileImage = "data:image/png;base64,AAAA";
+    const hosted = structuredClone(defaultSignatureData);
+    hosted.profileImageUrl = "https://example.com/me.jpg";
+
+    expect(generateTypstCode(uploaded)).toContain('"photo.jpg"');
+    expect(generateTypstCode(uploaded)).toContain("NOTE: Save your profile");
+    expect(generateTypstCode(hosted)).toContain(
+      "// Source: https://example.com/me.jpg",
+    );
+    expect(generateTypstCode(defaultSignatureData)).not.toContain("NOTE");
+  });
+
+  it("matches the HTML dividers and labels social links", () => {
+    const data = structuredClone(defaultSignatureData);
+    data.name = "Jane Doe";
+    data.titles = [{ title: "Lead", organization: "", url: "" }];
+    data.email = "jane@example.com";
+    data.socialLinks = [{ platform: "linkedin", url: "jane-doe" }];
+
+    const typst = generateTypstCode(data);
+
+    expect(typst.split("#line(").length - 1).toBe(2);
+    expect(typst).toContain(
+      '#link("https://linkedin.com/in/jane-doe")[LinkedIn]',
+    );
+  });
 });
