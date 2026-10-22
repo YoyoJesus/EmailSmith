@@ -1,8 +1,9 @@
 import { FOOTER_STORAGE_KEY } from "./footer-store";
-import { STORAGE_KEY } from "./store";
+import { LEGACY_STORAGE_KEY, STORAGE_KEY } from "./store";
 
 export const OWNED_LOCAL_STORAGE_KEYS = [
   STORAGE_KEY,
+  LEGACY_STORAGE_KEY,
   FOOTER_STORAGE_KEY,
 ] as const;
 

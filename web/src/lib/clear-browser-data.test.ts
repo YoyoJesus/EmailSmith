@@ -7,6 +7,7 @@ import {
 describe("removeOwnedStorageKeys", () => {
   it("owns the signature and footer keys", () => {
     expect(OWNED_LOCAL_STORAGE_KEYS).toEqual([
+      "emailsmith-signatures",
       "email-signature-data",
       "footerCollapsed",
     ]);
