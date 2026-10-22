@@ -10,13 +10,16 @@ EmailSmith is a browser-based email signature designer with a live preview and e
 - Customize fonts, colors, dividers, image shape, and sizing.
 - Copy a rich signature for pasting into compatible email clients.
 - Copy portable HTML or Typst source for further editing.
+- Keep several named signatures (for example work and school) and switch between them.
+- Export a signature as a JSON file and import it in another browser or share it as a team template.
+- Enter social profiles as a username or a full URL.
 - Keep work between visits using browser storage, and delete it from the More menu when you are done.
 
 ## Privacy and storage
 
-EmailSmith is a static SvelteKit application. Signature fields and uploaded profile images are processed in the browser and stored in that browser's `localStorage`; the project has no application server or database.
+EmailSmith is a static SvelteKit application. Signature fields and uploaded profile images are processed in the browser and stored in that browser's `localStorage`; the project has no application server or database. Uploaded photos are cropped to a square and resized to 300 pixels before they are saved so they fit within browser storage limits. If saving fails, for example because storage is full or blocked, the editor shows a warning. Export and import read and write JSON files on your device only.
 
-Browser storage is convenient, not a secure vault. Avoid entering secrets, and remember that clearing site data or using another browser removes access to saved signature data. **More > Delete saved data** removes the signature and footer preference this app saved in the current browser. A hosted image URL is generally more compatible with email clients than a browser-uploaded image embedded as a data URL.
+Browser storage is convenient, not a secure vault. Avoid entering secrets, and remember that clearing site data or using another browser removes access to saved signature data. **More > Delete saved data** removes every saved signature and the footer preference this app saved in the current browser. Exported JSON files contain your signature details and any uploaded photo, so treat them as personal data. A hosted image URL is generally more compatible with email clients than a browser-uploaded image embedded as a data URL.
 
 ## Local development
 
