@@ -14,9 +14,7 @@
 			aria-label="Dismiss mobile warning"
 			onclick={() => (dismissed = true)}
 		>
-			<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-				<path stroke-linecap="round" d="m5 5 10 10M15 5 5 15" />
-			</svg>
+			<span class="icon-[lucide--x] h-4 w-4" aria-hidden="true"></span>
 		</button>
 	</div>
 {/if}

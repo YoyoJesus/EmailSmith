@@ -7,40 +7,74 @@
 </script>
 
 <script lang="ts">
-	let { tabs, activeTab = $bindable() }: { tabs: EditorTab[]; activeTab: string } = $props();
+	import { tick } from 'svelte';
+	import { nextMenuIndex } from '$lib/menu-navigation';
+
+	let {
+		tabs,
+		activeTab = $bindable(),
+		idPrefix,
+	}: { tabs: EditorTab[]; activeTab: string; idPrefix: string } = $props();
 
 	let content = $derived(tabs.filter((tab) => tab.group === 'content'));
 	let appearance = $derived(tabs.filter((tab) => tab.group === 'appearance'));
+	let tablist = $state<HTMLDivElement>();
+
+	const ARROWS: Record<string, string> = { ArrowRight: 'ArrowDown', ArrowLeft: 'ArrowUp', Home: 'Home', End: 'End' };
+
+	// Arrow keys move between tabs and select them, following the WAI-ARIA tabs pattern.
+	async function onKeydown(event: KeyboardEvent) {
+		const key = ARROWS[event.key];
+		if (!key) return;
+		const current = tabs.findIndex((tab) => tab.id === activeTab);
+		const next = nextMenuIndex(key, current, tabs.length);
+		if (next === null) return;
+		event.preventDefault();
+		activeTab = tabs[next].id;
+		await tick();
+		tablist?.querySelector<HTMLElement>(`#${idPrefix}-tab-${tabs[next].id}`)?.focus();
+	}
 </script>
 
 {#snippet tabButton(tab: EditorTab)}
 	<button
 		type="button"
+		role="tab"
+		id={`${idPrefix}-tab-${tab.id}`}
+		aria-selected={activeTab === tab.id}
+		aria-controls={`${idPrefix}-panel`}
+		tabindex={activeTab === tab.id ? 0 : -1}
 		class="tab text-sm {activeTab === tab.id
 			? 'bg-white text-blue-700 shadow-sm ring-1 ring-blue-200'
 			: 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'}"
-		aria-current={activeTab === tab.id ? 'true' : undefined}
 		onclick={() => (activeTab = tab.id)}>{tab.label}</button
 	>
 {/snippet}
 
-<nav class="mb-5 space-y-2 border-b pb-4" aria-label="Editor sections">
-	<div class="track" role="group" aria-label="Content">
+<div
+	bind:this={tablist}
+	class="mb-5 space-y-2 border-b pb-4"
+	role="tablist"
+	aria-label="Editor sections"
+	tabindex="-1"
+	onkeydown={onKeydown}
+>
+	<div class="track" role="presentation">
 		{#each content as tab (tab.id)}
 			{@render tabButton(tab)}
 		{/each}
 	</div>
 	{#if appearance.length > 0}
-		<div class="flex items-center gap-2" role="group" aria-labelledby="tabbar-appearance">
-			<p id="tabbar-appearance" class="appearance-label">Appearance</p>
-			<div class="track">
+		<div class="flex items-center gap-2" role="presentation">
+			<p class="appearance-label" aria-hidden="true">Appearance</p>
+			<div class="track" role="presentation">
 				{#each appearance as tab (tab.id)}
 					{@render tabButton(tab)}
 				{/each}
 			</div>
 		</div>
 	{/if}
-</nav>
+</div>
 
 <style>
 	/* The global button rule in app.css is unlayered, so sizes are set here rather than with utilities. */

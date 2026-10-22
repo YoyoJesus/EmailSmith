@@ -6,22 +6,26 @@
 	import { tick } from 'svelte';
 	import { nextMenuIndex } from '$lib/menu-navigation';
 	import { footerStore } from '$lib/footer-store';
+	import type { CopyAction, CopyOutcome } from '$lib/clipboard';
+	import type { DownloadKind } from '$lib/download';
 
 	let {
 		viewMode = $bindable(),
 		copyStatus,
-		signatureCopied,
+		copied,
 		onCopySignature,
 		onCopyHtml,
 		onCopyTypst,
+		onDownload,
 		onClearData,
 	}: {
 		viewMode: ViewMode;
 		copyStatus: string;
-		signatureCopied: boolean;
+		copied: { action: CopyAction; outcome: CopyOutcome } | null;
 		onCopySignature: () => void;
 		onCopyHtml: () => void;
 		onCopyTypst: () => void;
+		onDownload: (kind: DownloadKind) => void;
 		onClearData: () => void;
 	} = $props();
 
@@ -30,6 +34,15 @@
 		{ id: 'html', label: 'HTML' },
 		{ id: 'typst', label: 'Typst' },
 	];
+
+	const SIGNATURE_LABELS: Record<CopyOutcome, string> = {
+		copied: 'Copied',
+		fallback: 'Copied as HTML',
+		failed: 'Copy failed',
+	};
+	let signatureLabel = $derived(
+		copied?.action === 'signature' ? SIGNATURE_LABELS[copied.outcome] : 'Copy signature',
+	);
 
 	let menuOpen = $state(false);
 	let menuButton = $state<HTMLButtonElement>();
@@ -141,18 +154,9 @@
 					onkeydown={onMenuButtonKeydown}
 				>
 					More
-					<svg
-						class="disclosure-chevron h-4 w-4"
-						viewBox="0 0 20 20"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						aria-hidden="true"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="m5 7.5 5 5 5-5" />
-					</svg>
+					<span class="disclosure-chevron icon-[lucide--chevron-down] h-4 w-4" aria-hidden="true"></span>
 				</button>
-				<button type="button" class="primary compact text-sm" onclick={onCopySignature}>{signatureCopied ? 'Copied' : 'Copy signature'}</button
+				<button type="button" class="primary compact text-sm" onclick={onCopySignature}>{signatureLabel}</button
 				>
 				{#if menuOpen}
 					<div
@@ -171,6 +175,15 @@
 							<p id="header-menu-formats" class="menu-heading">Other formats</p>
 							{@render menuItem('Copy HTML', 'Raw HTML source for clients that accept it', onCopyHtml)}
 							{@render menuItem('Copy Typst', 'Typst source for rendering an image or PDF', onCopyTypst)}
+						</div>
+						<div class="my-1 border-t border-gray-200" role="separator"></div>
+						<div role="group" aria-labelledby="header-menu-downloads">
+							<p id="header-menu-downloads" class="menu-heading">Download</p>
+							{@render menuItem('HTML file', 'For clients that attach a signature file, such as Thunderbird', () =>
+								onDownload('html'),
+							)}
+							{@render menuItem('Typst file', 'Compile locally to a PDF or image', () => onDownload('typst'))}
+							{@render menuItem('PNG image', 'For tools that do not accept HTML', () => onDownload('png'))}
 						</div>
 						<div class="my-1 border-t border-gray-200" role="separator"></div>
 						<div role="group" aria-labelledby="header-menu-view">
@@ -199,7 +212,15 @@
 				{/if}
 			</div>
 		</div>
-		<p class="sr-only" role="status" aria-live="polite">{copyStatus}</p>
+		<p
+			class="{copyStatus
+				? ''
+				: 'sr-only'} absolute right-4 top-full z-20 mt-2 max-w-sm rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-lg sm:right-6 lg:right-8"
+			role="status"
+			aria-live="polite"
+		>
+			{copyStatus}
+		</p>
 	</div>
 </header>
 

@@ -10,6 +10,9 @@ EmailSmith is a browser-based email signature designer with a live preview and e
 - Customize fonts, colors, dividers, image shape, and sizing.
 - Copy a rich signature for pasting into compatible email clients.
 - Copy portable HTML or Typst source for further editing.
+- Download the signature as an HTML file, a Typst file, or a PNG image.
+- Preview approximations of dark mode, blocked images, and classic Outlook, with warnings for settings that common clients do not support.
+- Follow short install steps for Gmail, Outlook, Apple Mail, and Thunderbird.
 - Keep several named signatures (for example work and school) and switch between them.
 - Export a signature as a JSON file and import it in another browser or share it as a team template.
 - Enter social profiles as a username or a full URL.

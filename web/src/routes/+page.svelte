@@ -16,6 +16,9 @@
 	import { OWNED_LOCAL_STORAGE_KEYS, removeOwnedStorageKeys } from '$lib/clear-browser-data';
 	import { generateSignatureHtml } from '$lib/html-generator';
 	import { generateTypstCode } from '$lib/typst-generator';
+	import { downloadBlob, fileStem, htmlDocument, renderPng, type DownloadKind } from '$lib/download';
+	import { compatibilityWarnings } from '$lib/email-compat';
+	import { copyMessage, copyPlainText, copyRichHtml, type CopyAction, type CopyOutcome } from '$lib/clipboard';
 	import { defaultSignatureData, type SignatureData } from '$lib/types';
 	import AppHeader, { type ViewMode } from '$lib/components/AppHeader.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
@@ -40,11 +43,13 @@
 	let copyStatus = $state('');
 	let clearDataOpen = $state(false);
 	let loaded = $state(false);
-	let signatureCopied = $derived(copyStatus.startsWith('Signature'));
+	let copied: { action: CopyAction; outcome: CopyOutcome } | null = $state(null);
+	let statusTimer: ReturnType<typeof setTimeout> | undefined;
 	let skipNextPersistence = false;
 
 	let signatureHtml = $derived(generateSignatureHtml(data));
 	let typstCode = $derived(generateTypstCode(data));
+	let warnings = $derived(compatibilityWarnings(data));
 
 	let active = $derived(activeSignature(library));
 
@@ -143,58 +148,62 @@
 
 	function exportFile() {
 		const signature = { ...$state.snapshot(active), data: $state.snapshot(data) };
-		const url = URL.createObjectURL(new Blob([exportSignature(signature)], { type: 'application/json' }));
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = `${signature.name.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'signature'}.emailsmith.json`;
-		link.click();
-		setTimeout(() => URL.revokeObjectURL(url), 0);
+		downloadBlob(
+			new Blob([exportSignature(signature)], { type: 'application/json' }),
+			`${fileStem(signature.name)}.emailsmith.json`,
+		);
 		announce(`Exported ${signature.name}.`);
 	}
 
+	async function download(kind: DownloadKind) {
+		const stem = fileStem(active.name);
+		if (kind === 'html') {
+			downloadBlob(new Blob([htmlDocument(signatureHtml)], { type: 'text/html' }), `${stem}.html`);
+			announce('Downloaded the signature as an HTML file.');
+		} else if (kind === 'typst') {
+			downloadBlob(new Blob([typstCode], { type: 'text/plain' }), `${stem}.typ`);
+			announce(
+				data.profileImage || data.profileImageUrl
+					? 'Downloaded the Typst file. Save your photo as photo.jpg next to it before compiling.'
+					: 'Downloaded the Typst file.',
+			);
+		} else {
+			// The image renderer cannot fetch remote files, so prefer the embedded upload when there is one.
+			const pngData = data.profileImage ? { ...$state.snapshot(data), profileImageUrl: '' } : $state.snapshot(data);
+			try {
+				downloadBlob(await renderPng(generateSignatureHtml(pngData)), `${stem}.png`);
+				announce(
+					!data.profileImage && data.profileImageUrl
+						? 'Downloaded the PNG. Hosted photos cannot be drawn into the image, so upload the photo to include it.'
+						: 'Downloaded the signature as a PNG image.',
+				);
+			} catch {
+				announce('This browser could not render the PNG. Try the HTML file or another browser.');
+			}
+		}
+	}
+
+	// One timer covers every status message, so overlapping clicks cannot clear a newer message early.
 	function announce(message: string) {
 		copyStatus = message;
-		setTimeout(() => {
-			if (copyStatus === message) copyStatus = '';
-		}, 2000);
+		clearTimeout(statusTimer);
+		statusTimer = setTimeout(() => {
+			copyStatus = '';
+			copied = null;
+		}, 4000);
 	}
 
-	async function copyText(text: string, label: string): Promise<boolean> {
-		let copied = true;
-		try {
-			await navigator.clipboard.writeText(text);
-		} catch {
-			// The fallback selects a temporary textarea, so focus is restored to where the person was.
-			const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-			const textarea = document.createElement('textarea');
-			textarea.value = text;
-			document.body.appendChild(textarea);
-			textarea.select();
-			try {
-				copied = document.execCommand('copy');
-			} catch {
-				copied = false;
-			}
-			document.body.removeChild(textarea);
-			previousFocus?.focus();
-		}
-		announce(copied ? `${label} copied to clipboard.` : `Could not copy ${label}. Select the code and copy it manually.`);
-		return copied;
-	}
-
-	// Rich HTML pastes as a formatted signature in email clients.
-	async function copyRichSignature() {
-		try {
-			await navigator.clipboard.write([
-				new ClipboardItem({
-					'text/html': new Blob([signatureHtml], { type: 'text/html' }),
-					'text/plain': new Blob([signatureHtml], { type: 'text/plain' }),
-				}),
-			]);
-			announce('Signature copied to clipboard.');
-		} catch {
-			await copyText(signatureHtml, 'Signature HTML');
-		}
+	// The signature copies as rich HTML so it pastes formatted; HTML and Typst copy their source as plain text.
+	async function copy(action: CopyAction): Promise<boolean> {
+		const outcome: CopyOutcome =
+			action === 'signature'
+				? await copyRichHtml(signatureHtml)
+				: (await copyPlainText(action === 'html' ? signatureHtml : typstCode))
+					? 'copied'
+					: 'failed';
+		copied = { action, outcome };
+		announce(copyMessage(action, outcome));
+		return outcome !== 'failed';
 	}
 
 	function clearBrowserData(): string | null {
@@ -233,10 +242,11 @@
 	<AppHeader
 		bind:viewMode
 		{copyStatus}
-		{signatureCopied}
-		onCopySignature={copyRichSignature}
-		onCopyHtml={() => copyText(signatureHtml, 'HTML')}
-		onCopyTypst={() => copyText(typstCode, 'Typst')}
+		{copied}
+		onCopySignature={() => copy('signature')}
+		onCopyHtml={() => copy('html')}
+		onCopyTypst={() => copy('typst')}
+		onDownload={download}
 		onClearData={() => (clearDataOpen = true)}
 	/>
 
@@ -272,26 +282,28 @@
 					onImport={importFile}
 					onExport={exportFile}
 				/>
-				<TabBar {tabs} bind:activeTab />
+				<TabBar {tabs} bind:activeTab idPrefix="editor" />
 
-				{#if activeTab === 'info'}
-					<InfoForm bind:data />
-				{:else if activeTab === 'photo'}
-					<PhotoForm bind:data />
-				{:else if activeTab === 'contact'}
-					<ContactForm bind:data />
-				{:else if activeTab === 'social'}
-					<SocialForm bind:data />
-				{:else if activeTab === 'layout'}
-					<LayoutForm bind:data />
-				{:else if activeTab === 'fonts'}
-					<FontsForm bind:data />
-				{:else if activeTab === 'colors'}
-					<ColorsForm bind:data />
-				{/if}
+				<div id="editor-panel" role="tabpanel" aria-labelledby={`editor-tab-${activeTab}`}>
+					{#if activeTab === 'info'}
+						<InfoForm bind:data />
+					{:else if activeTab === 'photo'}
+						<PhotoForm bind:data />
+					{:else if activeTab === 'contact'}
+						<ContactForm bind:data />
+					{:else if activeTab === 'social'}
+						<SocialForm bind:data />
+					{:else if activeTab === 'layout'}
+						<LayoutForm bind:data />
+					{:else if activeTab === 'fonts'}
+						<FontsForm bind:data />
+					{:else if activeTab === 'colors'}
+						<ColorsForm bind:data />
+					{/if}
+				</div>
 			</div>
 
-			<PreviewPanel {viewMode} {signatureHtml} {typstCode} onCopy={copyText} />
+			<PreviewPanel {viewMode} {signatureHtml} {typstCode} {warnings} onCopy={copy} />
 		</div>
 	</main>
 
