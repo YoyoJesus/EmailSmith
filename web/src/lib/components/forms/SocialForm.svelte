@@ -21,7 +21,7 @@
 		<h2>Social Links</h2>
 		<button type="button" class="primary editor-add" onclick={addSocialLink}>+ Add link</button>
 	</div>
-	{#each data.socialLinks as link, i}
+	{#each data.socialLinks as link, i (link)}
 		{@const platformLabel = socialPlatforms.find((sp) => sp.value === link.platform)?.label ?? 'link'}
 		<EntryCard
 			index={i}

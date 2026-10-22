@@ -56,18 +56,27 @@
 		}, 2000);
 	}
 
-	async function copyText(text: string, label: string) {
+	async function copyText(text: string, label: string): Promise<boolean> {
+		let copied = true;
 		try {
 			await navigator.clipboard.writeText(text);
 		} catch {
+			// The fallback selects a temporary textarea, so focus is restored to where the person was.
+			const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 			const textarea = document.createElement('textarea');
 			textarea.value = text;
 			document.body.appendChild(textarea);
 			textarea.select();
-			document.execCommand('copy');
+			try {
+				copied = document.execCommand('copy');
+			} catch {
+				copied = false;
+			}
 			document.body.removeChild(textarea);
+			previousFocus?.focus();
 		}
-		announce(`${label} copied to clipboard.`);
+		announce(copied ? `${label} copied to clipboard.` : `Could not copy ${label}. Select the code and copy it manually.`);
+		return copied;
 	}
 
 	// Rich HTML pastes as a formatted signature in email clients.

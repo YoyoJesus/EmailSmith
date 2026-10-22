@@ -66,7 +66,7 @@
 		<h2>Titles and Roles</h2>
 		<button type="button" class="primary editor-add" onclick={addTitle}>+ Add title</button>
 	</div>
-	{#each data.titles as title, i}
+	{#each data.titles as title, i (title)}
 		<EntryCard
 			index={i}
 			count={data.titles.length}

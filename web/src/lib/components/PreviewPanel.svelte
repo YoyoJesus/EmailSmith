@@ -10,7 +10,7 @@
 		viewMode: ViewMode;
 		signatureHtml: string;
 		typstCode: string;
-		onCopy: (text: string, label: string) => Promise<void>;
+		onCopy: (text: string, label: string) => Promise<boolean>;
 	} = $props();
 
 	let copied = $state(false);
@@ -19,7 +19,7 @@
 	let codeLabel = $derived(viewMode === 'html' ? 'HTML' : 'Typst');
 
 	async function copyCode() {
-		await onCopy(code, codeLabel);
+		if (!(await onCopy(code, codeLabel))) return;
 		copied = true;
 		clearTimeout(copiedTimer);
 		copiedTimer = setTimeout(() => (copied = false), 1500);
