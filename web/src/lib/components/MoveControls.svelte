@@ -31,9 +31,7 @@
 		disabled={index === 0}
 		onclick={() => move(-1)}
 	>
-		<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-			<path stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 5-5 5 5" />
-		</svg>
+		<span class="icon-[lucide--chevron-up] h-4 w-4" aria-hidden="true"></span>
 	</button>
 	<button
 		bind:this={downButton}
@@ -44,9 +42,7 @@
 		disabled={index === count - 1}
 		onclick={() => move(1)}
 	>
-		<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-			<path stroke-linecap="round" stroke-linejoin="round" d="m5 7.5 5 5 5-5" />
-		</svg>
+		<span class="icon-[lucide--chevron-down] h-4 w-4" aria-hidden="true"></span>
 	</button>
 </div>
 
