@@ -49,7 +49,7 @@ Run these from `web/`:
 
 ## Deployment
 
-The production target is Vercel with `web/` configured as the project root. SvelteKit uses the static adapter and writes the deployable site to `web/build/`. The fallback page supports client-side navigation.
+The production target is Vercel with `web/` configured as the project root. SvelteKit uses the static adapter and prerenders the single page to `web/build/index.html`. A Content-Security-Policy is generated at build time from `web/svelte.config.js`, and `web/vercel.json` adds anti-framing and other response headers.
 
 ## Contributing and security
 

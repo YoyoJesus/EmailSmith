@@ -1,5 +1,5 @@
 import type { SignatureData } from "./types";
-import { getSocialIconDataUri, getSocialColor } from "./social-icons";
+import { getSocialIconDataUri } from "./social-icons";
 
 function escapeHtml(str: string): string {
   return str

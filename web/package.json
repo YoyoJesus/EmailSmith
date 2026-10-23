@@ -9,8 +9,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
     "lint": "prettier --check .",
-    "format": "prettier --write .",
-    "setup-wasm": "node scripts/setup-wasm.js"
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
@@ -25,11 +24,7 @@
     "tailwindcss": "^4.1.0",
     "typescript": "^5.9.0",
     "vite": "^7.3.6",
-    "vite-plugin-wasm": "^3.4.1",
     "vitest": "^4.1.11"
-  },
-  "dependencies": {
-    "@myriaddreamin/typst.ts": "^0.7.0-rc2"
   },
   "type": "module"
 }
