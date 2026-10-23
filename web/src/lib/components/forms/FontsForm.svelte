@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { defaultSignatureData, fontFamilies, type FontSettings, type SignatureData } from '$lib/types';
+	import { FONT_SIZE_LIMITS } from '$lib/signature-schema';
 
 	let { data = $bindable() }: { data: SignatureData } = $props();
 	const uid = $props.id();
 
 	const SIZES: { key: Exclude<keyof FontSettings, 'fontFamily'>; label: string; min: number; max: number }[] = [
-		{ key: 'nameSize', label: 'Name', min: 12, max: 30 },
-		{ key: 'subtitleSize', label: 'Subtitle', min: 10, max: 24 },
-		{ key: 'titleSize', label: 'Title', min: 9, max: 20 },
-		{ key: 'textSize', label: 'Text', min: 8, max: 18 },
+		{ key: 'nameSize', label: 'Name', ...FONT_SIZE_LIMITS.nameSize },
+		{ key: 'subtitleSize', label: 'Subtitle', ...FONT_SIZE_LIMITS.subtitleSize },
+		{ key: 'titleSize', label: 'Title', ...FONT_SIZE_LIMITS.titleSize },
+		{ key: 'textSize', label: 'Text', ...FONT_SIZE_LIMITS.textSize },
 	];
 
 	function resetFonts() {

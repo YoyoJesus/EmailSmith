@@ -64,7 +64,7 @@
 			<div id="clear-data-description" class="space-y-2 text-sm text-gray-700">
 				<p>This permanently deletes data saved in this browser:</p>
 				<ul class="list-disc space-y-1 pl-5">
-					<li>signature fields, style settings, and uploaded photo</li>
+					<li>every saved signature, including fields, style settings, and uploaded photos</li>
 					<li>footer display preference</li>
 				</ul>
 				<p>Every field returns to its default value.</p>
