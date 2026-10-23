@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { socialPlatforms, type SignatureData, type SocialPlatform } from '$lib/types';
 	import { getSocialIcon } from '$lib/social-icons';
+	import { resolveSocialUrl } from '$lib/links';
 	import { moveAt } from '$lib/reorder';
 	import EntryCard from '../EntryCard.svelte';
 
@@ -23,6 +24,7 @@
 	</div>
 	{#each data.socialLinks as link, i (link)}
 		{@const platformLabel = socialPlatforms.find((sp) => sp.value === link.platform)?.label ?? 'link'}
+		{@const resolved = resolveSocialUrl(link.platform, link.url)}
 		<EntryCard
 			index={i}
 			count={data.socialLinks.length}
@@ -44,8 +46,26 @@
 						</select>
 					</div>
 					<div>
-						<label for={`${uid}-${i}-url`}>Profile URL</label>
-						<input id={`${uid}-${i}-url`} type="url" bind:value={link.url} placeholder="https://..." />
+						<label for={`${uid}-${i}-url`}>Username or profile URL</label>
+						<input
+							id={`${uid}-${i}-url`}
+							type="text"
+							inputmode="url"
+							autocomplete="off"
+							spellcheck="false"
+							bind:value={link.url}
+							placeholder={link.platform === 'custom' ? 'https://example.com' : 'janedoe or https://...'}
+							aria-describedby={`${uid}-${i}-resolved`}
+						/>
+						<p id={`${uid}-${i}-resolved`} class="mt-1 truncate text-xs text-gray-500">
+							{#if !link.url.trim()}
+								&nbsp;
+							{:else if resolved}
+								Links to <span class="font-mono">{resolved}</span>
+							{:else}
+								<span class="text-red-700">Not a supported link. Use an http or https address.</span>
+							{/if}
+						</p>
 					</div>
 				</div>
 			</div>

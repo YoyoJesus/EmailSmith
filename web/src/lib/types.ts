@@ -142,3 +142,9 @@ export const socialPlatforms: { value: SocialPlatform; label: string }[] = [
   { value: "medium", label: "Medium" },
   { value: "custom", label: "Custom" },
 ];
+
+/** Human-readable platform name for alt text and link labels in generated output. */
+export function getSocialLabel(platform: SocialPlatform): string {
+  if (platform === "custom") return "Link";
+  return socialPlatforms.find((p) => p.value === platform)?.label ?? "Link";
+}

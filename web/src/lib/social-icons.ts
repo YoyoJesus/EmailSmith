@@ -90,20 +90,20 @@ const icons: Record<SocialPlatform, SocialIconData> = {
   },
 };
 
+// Saved data from older versions or manual edits may name a platform that no longer exists.
+function iconFor(platform: SocialPlatform): SocialIconData {
+  return icons[platform] ?? icons.custom;
+}
+
 export function getSocialIcon(
   platform: SocialPlatform,
   size: number = 16,
 ): string {
-  const icon = icons[platform];
-  return icon.svg.replace(/SIZE/g, String(size));
-}
-
-export function getSocialColor(platform: SocialPlatform): string {
-  return icons[platform].color;
+  return iconFor(platform).svg.replace(/SIZE/g, String(size));
 }
 
 export function getSocialUrlPrefix(platform: SocialPlatform): string {
-  return icons[platform].urlPrefix;
+  return iconFor(platform).urlPrefix;
 }
 
 export function getSocialIconDataUri(
@@ -111,11 +111,9 @@ export function getSocialIconDataUri(
   size: number = 16,
   color?: string,
 ): string {
-  let svg = icons[platform].svg.replace(/SIZE/g, String(size));
-  if (color) {
-    svg = svg.replace('fill="currentColor"', `fill="${color}"`);
-  } else {
-    svg = svg.replace('fill="currentColor"', `fill="${icons[platform].color}"`);
-  }
+  const icon = iconFor(platform);
+  const svg = icon.svg
+    .replace(/SIZE/g, String(size))
+    .replace('fill="currentColor"', `fill="${color ?? icon.color}"`);
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }

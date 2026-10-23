@@ -54,11 +54,18 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
 
+      - name: Set up Typst
+        uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
+        with:
+          typst-version: 0.14.2
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests
         run: npm test
+        env:
+          TYPST_REQUIRED: "1"
 
       - name: Run Svelte and TypeScript checks
         run: npm run check

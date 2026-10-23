@@ -8,7 +8,7 @@
 		{ key: 'nameColor', label: 'Name Color', hint: 'Your name' },
 		{ key: 'titleColor', label: 'Title Color', hint: 'Titles and subtitle' },
 		{ key: 'textColor', label: 'Text Color', hint: 'Contact details and sign-off' },
-		{ key: 'accentColor', label: 'Accent Color', hint: 'Not used by current layouts' },
+		{ key: 'accentColor', label: 'Accent Color', hint: 'Action link' },
 		{ key: 'linkColor', label: 'Link Color', hint: 'Email and web links' },
 		{ key: 'dividerColor', label: 'Divider Color', hint: 'Separator line' },
 	];
